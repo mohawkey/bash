@@ -13,5 +13,7 @@ fi
 #
 # --------------------------------------------------------------------------------
 
-lxc exec docker -- docker pull containrrr/watchtower
-lxc exec docker -- docker run --rm -v /var/run/docker.sock:/var/run/docker.sock containrrr/watchtower --run-once --cleanup
+lxc exec docker -- docker stop portainer
+lxc exec docker -- docker rm portainer
+lxc exec docker -- docker pull portainer/portainer-ce:latest
+lxc exec docker -- docker run -d -p 8000:8000 -p 9443:9443 --name=portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer:/data portainer/portainer-ce:latest
