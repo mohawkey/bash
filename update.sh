@@ -3,7 +3,7 @@
 # /usr/local/sbin
 
 # --------------------------------------------------------------------------------
-#
+# ROOT
 # --------------------------------------------------------------------------------
 
 if [ "$(id -u)" != "0" ]; then
@@ -12,27 +12,85 @@ if [ "$(id -u)" != "0" ]; then
 fi
 
 # --------------------------------------------------------------------------------
-#
+# FUNCTIONS
 # --------------------------------------------------------------------------------
 
-update_system_aptitude () {
+
+UpdateSystemAptitude () {
    aptitude update
    aptitude upgrade -y
+}
+
+CleanupSystemAptitude () {
    aptitude clean
    apt --purge autoremove
 }
 
-update_container_aptitude () {
-   echo $1
-   lxc exec $1 -- aptitude update
-   #lxc exec $1 -- aptitude upgrade -y
-   #lxc exec $1 -- aptitude clean
-   #lxc exec $1 -- apt --purge autoremove
+UpdateSystemSnap () {
+   snap refresh
 }
+
+CleanupSystemSnap () {
+   snap list --all | awk '/disabled/{print $1, $3}' | while read snapname revision; do sudo snap remove "$snapname" --revision="$revision"; done
+}
+
+#UpdateContainerAptitude () {
+#   echo "kk"
+#}
+
+# --------------------------------------------------------------------------------
+# PARAMETERS
+# --------------------------------------------------------------------------------
+
+if [[ $# != 0 ]]; then
+   if [[ $1 == "--system" ]]; then
+      UpdateSystemAptitude
+      CleanupSystemAptitude
+      UpdateSystemSnap
+      CleanupSystemSnap
+   fi
+   if [[ $1 == "--container" ]]; then
+      if [[ $# == 1 ]]; then
+         echo "update all"
+      fi
+      if [[ $# == 2 ]]; then
+         Container=$2
+         echo "container $Container"
+      fi
+   fi
+fi
+
+
+
+
+
+
+
+
+
+
 
 # --------------------------------------------------------------------------------
 #
 # --------------------------------------------------------------------------------
+
+
+#if [[ -f .docker.tmp ]]; then
+#   rm .docker.tmp
+#fi
+#lxc list -c n -f csv | awk '{print $1}' | while read name; do echo "$name" >> .docker.tmp ; done
+#while read -r name; do update_container_aptitude "$name"; done < .docker.tmp
+#
+
+
+# update_container_aptitude () {
+#    echo $1
+#    lxc exec $1 -- aptitude update
+#    #lxc exec $1 -- aptitude upgrade -y
+#    #lxc exec $1 -- aptitude clean
+#    #lxc exec $1 -- apt --purge autoremove
+# }
+
 
 #aptitude update && aptitude upgrade -y
 #aptitude clean
@@ -50,13 +108,13 @@ update_container_aptitude () {
 # 
 # --------------------------------------------------------------------------------
 
-if [[ -f .docker.tmp ]]; then
-   rm .docker.tmp
-fi
+#if [[ -f .docker.tmp ]]; then
+#   rm .docker.tmp
+#fi#
 
-lxc list -c n -f csv | awk '{print $1}' | while read name; do echo "$name" >> .docker.tmp ; done
+#lxc list -c n -f csv | awk '{print $1}' | while read name; do echo "$name" >> .docker.tmp ; done
 
-while read -r name; do update_container_aptitude "$name"; done < .docker.tmp
+#while read -r name; do update_container_aptitude "$name"; done < .docker.tmp
 
 
 #lxc exec docker -- aptitude update
@@ -69,6 +127,6 @@ while read -r name; do update_container_aptitude "$name"; done < .docker.tmp
 # CLEANUP 
 # --------------------------------------------------------------------------------
 
-if [[ -f .docker.tmp ]]; then
-   rm .docker.tmp
-fi
+#if [[ -f .docker.tmp ]]; then
+#   rm .docker.tmp
+#fi
