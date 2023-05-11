@@ -5,3 +5,5 @@ curl -Lso bitwarden.sh "https://func.bitwarden.com/api/dl/?app=self-host&platfor
 chmod 700 bitwarden.sh
 
 ./bitwarden.sh install
+
+hello world
