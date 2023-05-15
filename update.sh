@@ -19,18 +19,12 @@ fi
 UpdateSystemAptitude () {
    aptitude update
    aptitude upgrade -y
-}
-
-CleanupSystemAptitude () {
    aptitude clean
    apt --purge autoremove
 }
 
 UpdateSystemSnap () {
    snap refresh
-}
-
-CleanupSystemSnap () {
    snap list --all | awk '/disabled/{print $1, $3}' | while read snapname revision; do sudo snap remove "$snapname" --revision="$revision"; done
 }
 
@@ -45,9 +39,7 @@ CleanupSystemSnap () {
 if [[ $# != 0 ]]; then
    if [[ $1 == "--system" ]]; then
       UpdateSystemAptitude
-      CleanupSystemAptitude
       UpdateSystemSnap
-      CleanupSystemSnap
    fi
    if [[ $1 == "--container" ]]; then
       if [[ $# == 1 ]]; then
