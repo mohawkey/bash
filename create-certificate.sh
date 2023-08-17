@@ -45,6 +45,16 @@ create-certificate () {
     domain=$1
     echo "create cert $domain"
 
+    openssl genrsa -out $domain.key 2048
+
+    openssl req -new -sha256 -key $domain.key -subj "/CN=$domain" -out $domain.csr
+
+
+}
+
+check-certificate () {
+    domain=$1
+    openssl req -in $domain.csr -noout -text
 }
 
 # --------------------------------------------------------------------------------
@@ -63,6 +73,10 @@ if [[ $# != 0 ]]; then
 
    if [[ $1 == "--create-certificate" ]]; then
       create-certificate $2      
+   fi
+
+   if [[ $1 == "--check-certificate" ]]; then
+      check-certificate $2      
    fi
 
 fi
